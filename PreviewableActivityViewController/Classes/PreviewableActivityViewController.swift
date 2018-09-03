@@ -1,3 +1,4 @@
+
 //
 //  PreviewableActivityViewController.swift
 //  Ride
@@ -18,31 +19,40 @@ open class PreviewableActivityViewController: UIActivityViewController {
     // MARK: - Properties -
     // MARK: Public
     
+    /// The duration of the simple fade-in animation when showing the preview view.
+    /// Defaults to 0.2 seconds.
+    open var animationDuration: TimeInterval = 0.2
+
+    /// The size of the margin, in points, between the preview view and the
+    /// top of the activity view controller's main view.
+    open var previewImageViewMargin: CGFloat = 8
+    
+    /// Holder blur style
+    open var holderViewEffectStyle: UIBlurEffectStyle = .extraLight
+    
     /// Set the `previewImageView`s image to be your preview before
     /// presenting the view controller to the user.
     /// By default, the controller will assign the first image passed in
     /// during initialisation, if any.
-    open let previewImageView: UIImageView = {
+    
+    lazy var holderView: UIVisualEffectView = {
+        let holderView = UIVisualEffectView()
+        holderView.effect = UIBlurEffect(style: self.holderViewEffectStyle)
+        holderView.clipsToBounds = true
+        holderView.layer.cornerRadius = 16
+        holderView.alpha = 0
+        holderView.translatesAutoresizingMaskIntoConstraints = false
+        return holderView
+    }()
+    
+    lazy var previewImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 9
-        imageView.alpha = 0
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    /// The duration of the simple fade-in animation when showing the preview view.
-    /// Defaults to 0.2 seconds.
-    open var animationDuration: TimeInterval = 0.2
-    
-    /// The ratio of the preview view's height in relation to its width.
-    /// Defaults to 0.5, i.e half the width.
-    open var heightToWidthRatio: CGFloat = 0.5
-    
-    /// The size of the margin, in points, between the preview view and the
-    /// top of the activity view controller's main view.
-    open var previewImageViewBottomMargin: CGFloat = 8
     
     // MARK: - Overrides -
     
@@ -69,27 +79,41 @@ open class PreviewableActivityViewController: UIActivityViewController {
 private extension PreviewableActivityViewController {
     
     func showPreviewView() {
-        view.window?.addSubview(previewImageView)
-        pinPreviewView()
+        view.window?.addSubview(holderView)
+        holderView.contentView.addSubview(previewImageView)
+        addConstraints()
         UIView.animate(withDuration: animationDuration) {
-            self.previewImageView.alpha = 1
+            self.holderView.alpha = 1
         }
     }
     
-    func pinPreviewView() {
+    func addConstraints() {
+        guard #available(iOS 11.0, *) else {
+            return
+        }
         NSLayoutConstraint.activate([
-            previewImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            previewImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            previewImageView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: -previewImageViewBottomMargin),
-            previewImageView.heightAnchor.constraint(equalTo: previewImageView.widthAnchor, multiplier: heightToWidthRatio)
+            holderView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            holderView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            holderView.bottomAnchor.constraint(equalTo: view.topAnchor,
+                                               constant: -previewImageViewMargin),
+            holderView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
+                                            constant: previewImageViewMargin),
+            previewImageView.leftAnchor.constraint(equalTo: holderView.leftAnchor,
+                                                   constant: previewImageViewMargin),
+            previewImageView.rightAnchor.constraint(equalTo: holderView.rightAnchor,
+                                              constant: -previewImageViewMargin),
+            previewImageView.bottomAnchor.constraint(equalTo: holderView.bottomAnchor,
+                                               constant: -previewImageViewMargin),
+            previewImageView.topAnchor.constraint(equalTo: holderView.topAnchor,
+                                            constant: previewImageViewMargin)
             ])
     }
     
     func hidePreviewView() {
         UIView.animate(withDuration: animationDuration, animations: {
-            self.previewImageView.alpha = 0
+            self.holderView.alpha = 0
         }) { _ in
-            self.previewImageView.removeFromSuperview()
+            self.holderView.removeFromSuperview()
         }
     }
     
