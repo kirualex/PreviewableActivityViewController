@@ -39,7 +39,7 @@ open class PreviewableActivityViewController: UIActivityViewController {
         let holderView = UIVisualEffectView()
         holderView.effect = UIBlurEffect(style: self.holderViewEffectStyle)
         holderView.clipsToBounds = true
-        holderView.layer.cornerRadius = 16
+        holderView.layer.cornerRadius = 12
         holderView.alpha = 0
         holderView.translatesAutoresizingMaskIntoConstraints = false
         return holderView
@@ -53,7 +53,6 @@ open class PreviewableActivityViewController: UIActivityViewController {
         return imageView
     }()
     
-    
     // MARK: - Overrides -
     
     public override init(activityItems: [Any], applicationActivities: [UIActivity]? = nil) {
@@ -66,25 +65,18 @@ open class PreviewableActivityViewController: UIActivityViewController {
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showPreviewView()
-    }
-    
-    open override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        hidePreviewView()
-    }
-    
-}
-
-private extension PreviewableActivityViewController {
-    
-    func showPreviewView() {
+        
         view.window?.addSubview(holderView)
         holderView.contentView.addSubview(previewImageView)
         addConstraints()
         UIView.animate(withDuration: animationDuration) {
             self.holderView.alpha = 1
         }
+    }
+    
+    open override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+       self.holderView.removeFromSuperview()
     }
     
     func addConstraints() {
@@ -95,27 +87,17 @@ private extension PreviewableActivityViewController {
             holderView.leftAnchor.constraint(equalTo: view.leftAnchor),
             holderView.rightAnchor.constraint(equalTo: view.rightAnchor),
             holderView.bottomAnchor.constraint(equalTo: view.topAnchor,
-                                               constant: -previewImageViewMargin),
+                                               constant: -8),
             holderView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
-                                            constant: previewImageViewMargin),
+                                            constant: 8),
             previewImageView.leftAnchor.constraint(equalTo: holderView.leftAnchor,
                                                    constant: previewImageViewMargin),
             previewImageView.rightAnchor.constraint(equalTo: holderView.rightAnchor,
-                                              constant: -previewImageViewMargin),
+                                                    constant: -previewImageViewMargin),
             previewImageView.bottomAnchor.constraint(equalTo: holderView.bottomAnchor,
-                                               constant: -previewImageViewMargin),
+                                                     constant: -previewImageViewMargin),
             previewImageView.topAnchor.constraint(equalTo: holderView.topAnchor,
-                                            constant: previewImageViewMargin)
+                                                  constant: previewImageViewMargin)
             ])
     }
-    
-    func hidePreviewView() {
-        UIView.animate(withDuration: animationDuration, animations: {
-            self.holderView.alpha = 0
-        }) { _ in
-            self.holderView.removeFromSuperview()
-        }
-    }
-    
 }
-
