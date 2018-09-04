@@ -37,11 +37,7 @@ open class PreviewableActivityViewController: UIActivityViewController {
     
     lazy var holderView: UIVisualEffectView = {
         let holderView = UIVisualEffectView()
-        holderView.effect = UIBlurEffect(style: self.holderViewEffectStyle)
         holderView.clipsToBounds = true
-        holderView.layer.cornerRadius = 12
-        holderView.alpha = 0
-        holderView.translatesAutoresizingMaskIntoConstraints = false
         return holderView
     }()
     
@@ -49,6 +45,8 @@ open class PreviewableActivityViewController: UIActivityViewController {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
+        imageView.alpha = 0
+        imageView.transform = CGAffineTransform.init(scaleX: 0.94, y: 0.94)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -65,18 +63,29 @@ open class PreviewableActivityViewController: UIActivityViewController {
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        view.window?.addSubview(holderView)
-        holderView.contentView.addSubview(previewImageView)
+        view.window?.insertSubview(holderView, at: 1)
+        view.window?.addSubview(previewImageView)
         addConstraints()
         UIView.animate(withDuration: animationDuration) {
-            self.holderView.alpha = 1
+            self.holderView.effect = UIBlurEffect(style: self.holderViewEffectStyle)
         }
+
+        UIView.animate(withDuration: animationDuration, delay: 0.2, options: .curveEaseOut, animations: {
+            self.previewImageView.alpha = 1
+            self.previewImageView.transform = .identity
+        }, completion: nil)
+
     }
     
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-       self.holderView.removeFromSuperview()
+        self.previewImageView.removeFromSuperview()
+        self.holderView.removeFromSuperview()
+    }
+    
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        self.holderView.frame = self.view.window!.bounds
     }
     
     func addConstraints() {
@@ -84,20 +93,12 @@ open class PreviewableActivityViewController: UIActivityViewController {
             return
         }
         NSLayoutConstraint.activate([
-            holderView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            holderView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            holderView.bottomAnchor.constraint(equalTo: view.topAnchor,
-                                               constant: -8),
-            holderView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
-                                            constant: 8),
-            previewImageView.leftAnchor.constraint(equalTo: holderView.leftAnchor,
-                                                   constant: previewImageViewMargin),
-            previewImageView.rightAnchor.constraint(equalTo: holderView.rightAnchor,
-                                                    constant: -previewImageViewMargin),
-            previewImageView.bottomAnchor.constraint(equalTo: holderView.bottomAnchor,
-                                                     constant: -previewImageViewMargin),
-            previewImageView.topAnchor.constraint(equalTo: holderView.topAnchor,
-                                                  constant: previewImageViewMargin)
+            previewImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            previewImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            previewImageView.bottomAnchor.constraint(equalTo: view.topAnchor,
+                                               constant: -previewImageViewMargin),
+            previewImageView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
+                                            constant: previewImageViewMargin)
             ])
     }
 }
