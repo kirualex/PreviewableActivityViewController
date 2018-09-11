@@ -63,6 +63,11 @@ open class PreviewableActivityViewController: UIActivityViewController {
     
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        guard UIDevice.current.userInterfaceIdiom == .phone else {
+            return
+        }
+        
         view.window?.insertSubview(holderView, at: 1)
         view.window?.addSubview(previewImageView)
         addConstraints()
@@ -79,12 +84,22 @@ open class PreviewableActivityViewController: UIActivityViewController {
     
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        guard UIDevice.current.userInterfaceIdiom == .phone else {
+            return
+        }
+        
         self.previewImageView.removeFromSuperview()
         self.holderView.removeFromSuperview()
     }
     
     open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+        guard UIDevice.current.userInterfaceIdiom == .phone else {
+            return
+        }
+        
         self.holderView.frame = self.view.window!.bounds
     }
     
@@ -92,13 +107,15 @@ open class PreviewableActivityViewController: UIActivityViewController {
         guard #available(iOS 11.0, *) else {
             return
         }
-        NSLayoutConstraint.activate([
-            previewImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            previewImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            previewImageView.bottomAnchor.constraint(equalTo: view.topAnchor,
-                                               constant: -previewImageViewMargin),
-            previewImageView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
-                                            constant: previewImageViewMargin)
-            ])
-    }
+        
+            NSLayoutConstraint.activate([
+                previewImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
+                previewImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+                previewImageView.bottomAnchor.constraint(equalTo: view.topAnchor,
+                                                         constant: -previewImageViewMargin),
+                previewImageView.topAnchor.constraint(equalTo: view.window!.safeAreaLayoutGuide.topAnchor,
+                                                      constant: previewImageViewMargin)
+                ])
+        }
+    
 }
