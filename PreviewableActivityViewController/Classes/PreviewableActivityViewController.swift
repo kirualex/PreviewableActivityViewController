@@ -28,7 +28,7 @@ open class PreviewableActivityViewController: UIActivityViewController {
     open var previewImageViewMargin: CGFloat = 8
     
     /// Holder blur style
-    open var holderViewEffectStyle: UIBlurEffectStyle = .extraLight
+    open var holderViewEffectStyle: UIBlurEffect.Style = .extraLight
     
     /// Set the `previewImageView`s image to be your preview before
     /// presenting the view controller to the user.
