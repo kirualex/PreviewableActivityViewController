@@ -14,5 +14,5 @@ A `UIActivityViewController` that provides the ability to show a preview of the 
   s.social_media_url = 'https://twitter.com/kanecheshire'
   s.ios.deployment_target = '9.0'
   s.source_files = 'PreviewableActivityViewController/Classes/**/*'
-  s.swift_version = '4.2'
+  s.swift_version = '5.0'
 end
